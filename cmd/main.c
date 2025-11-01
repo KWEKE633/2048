@@ -1,6 +1,13 @@
 #include "game.h"
 #include "e_const.h"
 #include <time.h>
+#include <signal.h>
+
+volatile sig_atomic_t resize_flag = 0;
+
+static void handle_winch(int sig __attribute__((__unused__))) {
+    resize_flag = 1;
+}
 
 void init_board(Game *g)
 {
@@ -24,7 +31,7 @@ void init_board(Game *g)
     }
 }
 
-void draw_board(Game *g)
+void draw_board(Game *g) // TODO: mv to presentation.c
 {
     clear();
     mvprintw(0,0,"2048 (arrows to move, q exit)");
@@ -216,71 +223,98 @@ int mov(int dir, Game *g)
     return 1;
 }
 
-int menu(void)
+int menu(void) // TODO: mv to presentation.c
 {
     clear();
-    mvprintw(3,2,"=== 2048 MENU ===");
-    mvprintw(5,4,"1) 4x4");
-    mvprintw(6,4,"2) 5x5");
-    mvprintw(8,4,"ESC to quit");
-    refresh();
+    // mvprintw(3,2,"=== 2048 MENU ===");
+    // mvprintw(5,4,"1) 4x4");
+    // mvprintw(6,4,"2) 5x5");
+    // mvprintw(8,4,"ESC to quit");
+    // refresh();
 
+    int init = 1;
+    int res = SCREEN_SIZE_OK;
     while(1)
     {
+        if(init || resize_flag) {
+            res = handle_resize();
+            init = 0;
+            resize_flag = 0;
+            if (res == SCREEN_SIZE_OK) {
+                mvprintw(3,2,"=== 2048 MENU ===");
+                mvprintw(5,4,"1) 4x4");
+                mvprintw(6,4,"2) 5x5");
+                mvprintw(8,4,"ESC to quit");
+                refresh();
+            }
+        }
         int ch = getch();
-        if (ch == '1') return 4;
-        if (ch == '2') return 5;
-        if (ch == 27) return -1;
+        if (res == SCREEN_SIZE_OK) {
+            if (ch == '1') return 4;
+            if (ch == '2') return 5;
+            if (ch == 27) return -1;
+        }
     }
 }
 
 int main(void)
 {
-    Game g;
+    Game g = {
+        .board = {0},
+        .N = 0,
+        .score = 0,
+        .best = load_best_score()
+    };
 
+    signal(SIGWINCH, handle_winch);
     srand(time(NULL));
 
     initscr();
+    cbreak();
     noecho();
     keypad(stdscr, TRUE);
+    timeout(0);
     curs_set(0);
 
     g.N = menu();
-    if (g.N == -1)
-    {
+    if (g.N == -1) {
         endwin();
         return 0;
     }
-
-    g.score = 0;
-	g.best = load_best_score();
     init_board(&g);
     draw_board(&g);
-
+    
     while(1)
     {
+        if(resize_flag) {
+            int res = handle_resize();
+            resize_flag = 0;
+            if (res == SCREEN_SIZE_OK) {
+                draw_board(&g);
+            }
+        }
         int ch = getch();
         if (ch == 'q')
-            break;
-
+        break;
+        
         int moved = 0;
         if (ch == KEY_UP) moved = mov(0, &g);
         if (ch == KEY_DOWN) moved = mov(1, &g);
         if (ch == KEY_LEFT) moved = mov(2, &g);
         if (ch == KEY_RIGHT) moved = mov(3, &g);
-
+        
         if (moved)
-            draw_board(&g);
-
+        draw_board(&g);
+        
         if (is_won(&g))
         {
             mvprintw(3 + g.N*2, 0, "You reached %d! Continue? (y/n)", WIN_VALUE);
             refresh();
             int c = getch();
             if (c == 'n')
-                break;
+            break;
         }
-
+        
         if (!can_move(&g))
         {
             mvprintw(3 + g.N*2, 0, "GAME OVER! Press any key...");
@@ -289,8 +323,9 @@ int main(void)
             break;
         }
     }
-	if (g.best < g.score)
-		save_best_score(g.score);
+	if (g.best < g.score) {
+        save_best_score(g.score); // MEMO: Ctrl + C で終了した場合スコアは保存されない。
+    }
     endwin();
     return 0;
 }
