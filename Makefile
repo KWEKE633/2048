@@ -19,6 +19,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -MMD -MP -Iinclude -I$(LIBFT_DIR)
 LDFLAGS = -L$(LIBFT_DIR) -lft -lncurses
 
+.PHONY: all
 all: $(LIBFT_A) $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT_A)
@@ -31,19 +32,18 @@ $(NAME): $(OBJS) $(LIBFT_A)
 $(LIBFT_A):
 	@make -C $(LIBFT_DIR)
 
+.PHONY: clean
 clean:
 	@make clean -C $(LIBFT_DIR)
 	rm -f $(OBJS) $(DEP)
 
+.PHONY: fclean
 fclean: clean
 	@make fclean -C $(LIBFT_DIR)
 	rm -f $(NAME)
 
+.PHONY: re
 re: fclean all
-
-.PHONY: all clean fclean re
-
-
 
 # Mac ver
 
