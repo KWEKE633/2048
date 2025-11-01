@@ -21,4 +21,7 @@ typedef struct s_game
 int load_best_score(void);
 void save_best_score(int best);
 
+void init_colors(void);
+int color_for_value(int v);
+
 #endif

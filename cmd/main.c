@@ -34,10 +34,22 @@ void draw_board(Game *g)
     {
         for (int j = 0; j < g->N; j++)
         {
-            if (g->board[i][j] == 0)
-                mvprintw(3 + i*2, j*6, "  .  ");
-            else
-                mvprintw(3 + i*2, j*6, "%4d ", g->board[i][j]);
+            int val = g->board[i][j];
+			int cp = color_for_value(val);
+
+			if (val == 0)
+			{
+				mvprintw(3 + i*2, j*6, "  .  ");
+			}
+			else
+			{
+				if (cp)
+					attron(COLOR_PAIR(cp) | A_BOLD);
+				mvprintw(3 + i*2, j*6, "%4d ", val);
+				if (cp)
+					attroff(COLOR_PAIR(cp) | A_BOLD);
+			}
+
         }
     }
     refresh();
@@ -244,6 +256,8 @@ int main(void)
     noecho();
     keypad(stdscr, TRUE);
     curs_set(0);
+
+	init_colors();
 
     g.N = menu();
     if (g.N == -1)

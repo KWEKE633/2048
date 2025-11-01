@@ -7,7 +7,7 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = cmd
 
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c $(SRC_DIR)/color.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -29,7 +29,7 @@ clean:
 
 fclean: clean
 	@make fclean -C $(LIBFT_DIR)
-	rm -f $(NAME)
+	rm -f $(NAME) bestscore.txt
 
 re: fclean all
 
@@ -41,12 +41,12 @@ re: fclean all
 
 # NAME = 2048
 
-# LIBFT_DIR = pkg/libft
+# LIBFT_DIR = pkg
 # LIBFT_A = $(LIBFT_DIR)/libft.a
 
 # SRC_DIR = cmd
 
-# SRCS = $(SRC_DIR)/main.c
+# SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c $(SRC_DIR)/color.c
 
 # OBJS = $(SRCS:.c=.o)
 
@@ -68,7 +68,7 @@ re: fclean all
 
 # fclean: clean
 # 	@make fclean -C $(LIBFT_DIR)
-# 	rm -f $(NAME)
+# 	rm -f $(NAME) bestscore.txt
 
 # re: fclean all
 
