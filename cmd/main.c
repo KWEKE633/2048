@@ -3,11 +3,11 @@
 #include <time.h>
 #include <signal.h>
 
-volatile sig_atomic_t resize_flag = 0;
+volatile sig_atomic_t g_resize_flag = 0;
 volatile sig_atomic_t g_int = 0;
 
 static void handle_winch(int sig __attribute__((__unused__))) {
-    resize_flag = 1;
+    g_resize_flag = 1;
 }
 
 static void handle_sigint(int sig __attribute__((__unused__))) {
@@ -248,10 +248,10 @@ int menu(void) // TODO: mv to presentation.c
     int res = SCREEN_SIZE_OK;
     while(1)
     {
-        if(init || resize_flag) {
+        if(init || g_resize_flag) {
             res = handle_resize();
             init = 0;
-            resize_flag = 0;
+            g_resize_flag = 0;
             if (res == SCREEN_SIZE_OK) {
                 mvprintw(3,2,"=== 2048 MENU ===");
                 mvprintw(5,4,"1) 4x4");
@@ -315,9 +315,9 @@ int main(void)
             ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
             return 1;
         }
-        if(resize_flag) {
+        if(g_resize_flag) {
             res = handle_resize();
-            resize_flag = 0;
+            g_resize_flag = 0;
             if (res == SCREEN_SIZE_OK) {
                 draw_board(&g);
             }
