@@ -57,3 +57,4 @@ dkms.conf
 2048
 2048_debug
 !/cmd/2048
+bestscore.txt
