@@ -7,35 +7,45 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = cmd
 
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c $(SRC_DIR)/color.c
+SRCS = 
+SRCS += $(SRC_DIR)/main.c
+SRCS += $(SRC_DIR)/utils.c
+SRCS += $(SRC_DIR)/presentation.c
+SRCS += $(SRC_DIR)/color.c
+
 
 OBJS = $(SRCS:.c=.o)
+DEP = $(OBJS:.o=.d)
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -I$(LIBFT_DIR)
+CFLAGS = -Wall -Wextra -Werror -MMD -MP -Iinclude -I$(LIBFT_DIR)
 LDFLAGS = -L$(LIBFT_DIR) -lft -lncurses
 
+.PHONY: all
 all: $(LIBFT_A) $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT_A)
-	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
+
+-include $(DEP)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT_A):
 	@make -C $(LIBFT_DIR)
 
+.PHONY: clean
 clean:
 	@make clean -C $(LIBFT_DIR)
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(DEP)
 
+.PHONY: fclean
 fclean: clean
 	@make fclean -C $(LIBFT_DIR)
 	rm -f $(NAME) bestscore.txt
 
+.PHONY: re
 re: fclean all
-
-.PHONY: all clean fclean re
-
-
 
 # Mac ver
 

@@ -6,6 +6,9 @@
 
 #define MAX 5
 
+// presentation.c
+int handle_resize();
+
 typedef struct s_game
 {
     int board[MAX][MAX];

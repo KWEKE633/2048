@@ -123,6 +123,9 @@ void handle_resize() {
     info_win = create_info_window();
     menu_win = create_menu_window(menu_height, menu_width);
 
+    // 非ブロッキング入力を再設定
+    wtimeout(menu_win, 0);
+
     // 再描画
     print_info(info_win);
     print_menu(menu_win, highlight);
@@ -138,11 +141,10 @@ int main() {
     noecho();
     curs_set(0);  // カーソルを非表示
     keypad(stdscr, TRUE);
-
     // 初期ウィンドウ作成
     int menu_height = n_choices + 6;
     int menu_width = 30;
-
+    
     // 初期画面サイズチェック
     if(LINES < menu_height + 8 || COLS < menu_width + 4) {
         endwin();
@@ -150,28 +152,32 @@ int main() {
         printf("Please resize and try again.\n");
         return 1;
     }
-
+    
     info_win = create_info_window();
     menu_win = create_menu_window(menu_height, menu_width);
-
+    
     // 初期描画
     print_info(info_win);
     print_menu(menu_win, highlight);
-
+    
     int ch;
     int selected = -1;
 
+    wtimeout(menu_win, 100);   // 非ブロッキング入力
     // メインループ
     while(selected == -1) {
         // リサイズフラグをチェック
         if(resize_flag) {
             handle_resize();
+
             resize_flag = 0;
         }
 
         // キー入力を待つ
         ch = wgetch(menu_win);
-
+        if (ch == ERR) {
+            continue;
+        }
         switch(ch) {
             case KEY_UP:
                 if(highlight > 0) {
