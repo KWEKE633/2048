@@ -33,7 +33,7 @@ $(LIBFT_A):
 
 clean:
 	@make clean -C $(LIBFT_DIR)
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(DEP)
 
 fclean: clean
 	@make fclean -C $(LIBFT_DIR)
