@@ -2,7 +2,7 @@
 
 NAME = 2048
 
-LIBFT_DIR = pkg/libft
+LIBFT_DIR = pkg
 LIBFT_A = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = cmd
