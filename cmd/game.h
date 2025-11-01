@@ -11,10 +11,6 @@
 extern volatile sig_atomic_t g_resize_flag;
 extern volatile sig_atomic_t g_int;
 
-// presentation.c
-int draw_menu(int high_score);
-int handle_resize();
-
 typedef struct s_game
 {
     int board[MAX][MAX];
@@ -26,6 +22,11 @@ typedef struct s_game
     // int start_row;
     // int start_col;
 } Game;
+
+// presentation.c
+int draw_menu(int high_score);
+int handle_resize();
+void draw_board(Game *g);
 
 int load_best_score(void);
 void save_best_score(int best);
