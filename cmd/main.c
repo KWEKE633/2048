@@ -240,38 +240,6 @@ int mov(int dir, Game *g)
     return 1;
 }
 
-int menu(void) // TODO: mv to presentation.c
-{
-    clear();
-
-    int init = 1;
-    int res = SCREEN_SIZE_OK;
-    while(1)
-    {
-        if(init || g_resize_flag) {
-            res = handle_resize();
-            init = 0;
-            g_resize_flag = 0;
-            if (res == SCREEN_SIZE_OK) {
-                mvprintw(3,2,"=== 2048 MENU ===");
-                mvprintw(5,4,"1) 4x4");
-                mvprintw(6,4,"2) 5x5");
-                mvprintw(8,4,"ESC to quit");
-                refresh();
-            }
-        }
-        if (g_int)
-            return -1;
-        int ch = getch();
-        if (res == SCREEN_SIZE_TOO_SMALL) {
-            continue;
-        }
-        if (ch == '1') return 4;
-        if (ch == '2') return 5;
-        if (ch == 27) return -1;
-    }
-}
-
 int main(void)
 {
     Game g = {
@@ -295,7 +263,7 @@ int main(void)
 
 	init_colors();
 
-    g.N = menu();
+    g.N = draw_menu(g.best);
     if (g.N == -1) {
         endwin();
         if (g_int) {

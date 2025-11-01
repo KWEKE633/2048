@@ -2,11 +2,17 @@
 #define GAME_H
 
 #include <ncurses.h>
+#include <signal.h>
+
 #include "../pkg/libft.h"
 
 #define MAX 5
 
+extern volatile sig_atomic_t g_resize_flag;
+extern volatile sig_atomic_t g_int;
+
 // presentation.c
+int draw_menu(int high_score);
 int handle_resize();
 
 typedef struct s_game
