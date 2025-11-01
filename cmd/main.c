@@ -4,9 +4,14 @@
 #include <signal.h>
 
 volatile sig_atomic_t resize_flag = 0;
+volatile sig_atomic_t g_int = 0;
 
 static void handle_winch(int sig __attribute__((__unused__))) {
     resize_flag = 1;
+}
+
+static void handle_sigint(int sig __attribute__((__unused__))) {
+    g_int = 1;
 }
 
 void init_board(Game *g)
@@ -255,6 +260,8 @@ int menu(void) // TODO: mv to presentation.c
                 refresh();
             }
         }
+        if (g_int)
+            return -1;
         int ch = getch();
         if (res == SCREEN_SIZE_TOO_SMALL) {
             continue;
@@ -275,6 +282,8 @@ int main(void)
     };
 
     signal(SIGWINCH, handle_winch);
+    signal(SIGINT, handle_sigint);
+
     srand(time(NULL));
 
     initscr();
@@ -289,6 +298,10 @@ int main(void)
     g.N = menu();
     if (g.N == -1) {
         endwin();
+        if (g_int) {
+            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+            return 1;
+        }
         return 0;
     }
     init_board(&g);
@@ -297,6 +310,11 @@ int main(void)
     int res = SCREEN_SIZE_OK;
     while(1)
     {
+        if (g_int) {
+            endwin();
+            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+            return 1;
+        }
         if(resize_flag) {
             res = handle_resize();
             resize_flag = 0;
