@@ -7,7 +7,7 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = cmd
 
-SRCS = $(SRC_DIR)/main.c
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c
 
 OBJS = $(SRCS:.c=.o)
 

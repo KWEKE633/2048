@@ -253,6 +253,7 @@ int main(void)
     }
 
     g.score = 0;
+	g.best = load_best_score();
     init_board(&g);
     draw_board(&g);
 
@@ -288,7 +289,8 @@ int main(void)
             break;
         }
     }
-
+	if (g.best < g.score)
+		save_best_score(g.score);
     endwin();
     return 0;
 }
