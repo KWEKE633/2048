@@ -1,5 +1,4 @@
 #include "game.h"
-#include "e_const.h"
 
 int handle_resize() {
     endwin();

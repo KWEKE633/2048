@@ -1,5 +1,4 @@
 #include "game.h"
-#include "e_const.h"
 #include <time.h>
 #include <signal.h>
 
@@ -297,20 +296,3 @@ int main(void)
     endwin();
     return 0;
 }
-
-
-// int main() {
-//     initscr();              // 画面初期化
-//     cbreak();               // 行バッファ無効
-//     noecho();               // 入力文字を表示しない
-//     keypad(stdscr, TRUE);   // 矢印キー入力許可
-//     curs_set(0);            // カーソル非表示
-
-//     mvprintw(1, 1, "Hello ncurses!");
-//     refresh();              // 描画更新
-
-//     getch();                // 1文字待ち
-
-//     endwin();               // 後片付け
-//     return 0;
-// }

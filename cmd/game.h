@@ -11,6 +11,20 @@
 extern volatile sig_atomic_t g_resize_flag;
 extern volatile sig_atomic_t g_int;
 
+enum e_const
+{
+    WIN_VALUE = 2048,
+};
+
+enum e_window_flag
+{
+    WINDOW_MIN_WIDTH = 32,
+    WINDOW_MIN_HEIGHT = 13,
+
+    SCREEN_SIZE_OK = 0,
+    SCREEN_SIZE_TOO_SMALL = 1
+};
+
 typedef struct s_game
 {
     int board[MAX][MAX];

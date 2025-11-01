@@ -1,5 +1,4 @@
 #include "game.h"
-#include "e_const.h"
 
 void init_colors(void)
 {
