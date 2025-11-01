@@ -226,11 +226,6 @@ int mov(int dir, Game *g)
 int menu(void) // TODO: mv to presentation.c
 {
     clear();
-    // mvprintw(3,2,"=== 2048 MENU ===");
-    // mvprintw(5,4,"1) 4x4");
-    // mvprintw(6,4,"2) 5x5");
-    // mvprintw(8,4,"ESC to quit");
-    // refresh();
 
     int init = 1;
     int res = SCREEN_SIZE_OK;
@@ -249,11 +244,12 @@ int menu(void) // TODO: mv to presentation.c
             }
         }
         int ch = getch();
-        if (res == SCREEN_SIZE_OK) {
-            if (ch == '1') return 4;
-            if (ch == '2') return 5;
-            if (ch == 27) return -1;
+        if (res == SCREEN_SIZE_TOO_SMALL) {
+            continue;
         }
+        if (ch == '1') return 4;
+        if (ch == '2') return 5;
+        if (ch == 27) return -1;
     }
 }
 
@@ -283,20 +279,23 @@ int main(void)
     }
     init_board(&g);
     draw_board(&g);
-    
+
+    int res = SCREEN_SIZE_OK;
     while(1)
     {
         if(resize_flag) {
-            int res = handle_resize();
+            res = handle_resize();
             resize_flag = 0;
             if (res == SCREEN_SIZE_OK) {
                 draw_board(&g);
             }
         }
         int ch = getch();
+        if (res == SCREEN_SIZE_TOO_SMALL) {
+            continue;
+        }
         if (ch == 'q')
         break;
-        
         int moved = 0;
         if (ch == KEY_UP) moved = mov(0, &g);
         if (ch == KEY_DOWN) moved = mov(1, &g);
