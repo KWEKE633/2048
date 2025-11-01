@@ -7,18 +7,26 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 
 SRC_DIR = cmd
 
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/utils.c
+SRCS = 
+SRCS += $(SRC_DIR)/main.c
+SRCS += $(SRC_DIR)/utils.c
+SRCS += $(SRC_DIR)/presentation.c
 
 OBJS = $(SRCS:.c=.o)
+DEP = $(OBJS:.o=.d)
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -I$(LIBFT_DIR)
+CFLAGS = -Wall -Wextra -Werror -MMD -MP -Iinclude -I$(LIBFT_DIR)
 LDFLAGS = -L$(LIBFT_DIR) -lft -lncurses
 
 all: $(LIBFT_A) $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT_A)
-	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
+
+-include $(DEP)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT_A):
 	@make -C $(LIBFT_DIR)
