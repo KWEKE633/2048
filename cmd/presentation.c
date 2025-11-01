@@ -51,3 +51,34 @@ int draw_menu(int high_score __attribute__((__unused__)))
         if (ch == 27) return -1;
     }
 }
+
+void draw_board(Game *g)
+{
+    clear();
+    mvprintw(0,0,"2048 (arrows to move, q exit)");
+    mvprintw(1,0,"Score: %d", g->score);
+
+    for (int i = 0; i < g->N; i++)
+    {
+        for (int j = 0; j < g->N; j++)
+        {
+            int val = g->board[i][j];
+			int cp = color_for_value(val);
+
+			if (val == 0)
+			{
+				mvprintw(3 + i*2, j*6, "  .  ");
+			}
+			else
+			{
+				if (cp)
+					attron(COLOR_PAIR(cp) | A_BOLD);
+				mvprintw(3 + i*2, j*6, "%4d ", val);
+				if (cp)
+					attroff(COLOR_PAIR(cp) | A_BOLD);
+			}
+
+        }
+    }
+    refresh();
+}
