@@ -49,7 +49,7 @@ $(LIBFT_A):
 
 .PHONY: clean
 clean:
-	@make clean -C $(LIBFT_DIR)
+	@make fclean -C $(LIBFT_DIR)
 	rm -f $(OBJS) $(DOBJS) $(DEP) $(DDEP) $(DNAME)
 
 .PHONY: fclean
