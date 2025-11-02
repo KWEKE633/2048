@@ -286,7 +286,7 @@ int main(void) {
         } else {
           mvprintw(row, 0, "EXTRA OVER! Final Score: %d   Press ESC key...",
                    g.score);
-          mvprintw(row + 1, 0, "Collected 2048 tiles: %d", count_2048(&g));
+          mvprintw(row + 1, 0, "Collected %5d tiles: %d", WIN_VALUE , count_2048(&g));
         }
         refresh();
         while (1) {
