@@ -211,7 +211,7 @@ int mov(int dir, Game *g)
 int main(void)
 {
     Game g = {
-        .board = {0},
+        .board = {},
         .N = 0,
         .score = 0,
         .best = load_best_score()
