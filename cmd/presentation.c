@@ -250,6 +250,9 @@ void draw_board(Game *g) {
 
 int draw_win_modal(int win_value) {
   int res = SCREEN_SIZE_OK;
+  int highlight = 0; // 0: Yes, 1: No
+  char *choices[] = {"Yes", "No"};
+  int n_choices = 2;
 
   while (1) {
     if (g_resize_flag) {
@@ -258,25 +261,67 @@ int draw_win_modal(int win_value) {
     }
 
     if (res == SCREEN_SIZE_OK) {
-      int msg_row = LINES / 2 - 1;
+      clear();
 
-      // 強調表示
-      attron(A_REVERSE | A_BOLD);
-      mvprintw(msg_row, (COLS - 17) / 2, "You reached %5d", win_value);
-      mvprintw(msg_row + 2, (COLS - 16) / 2, "Continue? (y/n)");
-      attroff(A_REVERSE | A_BOLD);
+      int center_row = LINES / 2;
+      int center_col = COLS / 2;
+      int box_width = 18 + 10; // 表示タイトルが18文字想定
+      int box_height = 7;
+      int box_start_row = center_row - box_height / 2;
+      int box_start_col = center_col - box_width / 2;
+
+      for (int i = 0; i < box_height; i++) {
+        for (int j = 0; j < box_width; j++) {
+          int row = box_start_row + i;
+          int col = box_start_col + j;
+
+          if (i == 0 || i == box_height - 1) {
+            mvprintw(row, col, "-");
+          } else if (j == 0 || j == box_width - 1) {
+            mvprintw(row, col, "|");
+          } else {
+            mvprintw(row, col, " ");
+          }
+        }
+      }
+
+      mvprintw(box_start_row + 2, center_col - 18 / 2, "You reached %5d", win_value);
+      for (int i = 0; i < n_choices; i++) {
+        int choice_row = box_start_row + 4 + i;
+
+        if (highlight == i) {
+          attron(A_REVERSE);
+          mvprintw(choice_row, center_col - 4, "  %s  ", choices[i]);
+          attroff(A_REVERSE);
+        } else {
+          mvprintw(choice_row, center_col - 4, "  %s  ", choices[i]);
+        }
+      }
       refresh();
     }
-
     if (g_int)
       return -1;
     int ch = getch();
     if (res == SCREEN_SIZE_TOO_SMALL) {
       continue;
     }
-    if (ch == 'y' || ch == 'Y')
-      return 1;
-    else if (ch == 'n' || ch == 'N')
-      return 0;
+    switch (ch) {
+    case KEY_UP:
+      if (highlight > 0)
+        highlight--;
+      break;
+    case KEY_DOWN:
+      if (highlight < n_choices - 1)
+        highlight++;
+      break;
+    case 'y':
+    case 'Y':
+      return 1; // Yes
+    case 'n':
+    case 'N':
+      return 0; // No
+    case 10: // Enter
+      return (highlight == 0) ? 1 : 0;
+    }
   }
 }
