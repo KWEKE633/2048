@@ -19,7 +19,7 @@ int handle_resize() {
   return SCREEN_SIZE_OK;
 }
 
-int draw_menu(int high_score __attribute__((__unused__))) {
+int draw_menu(int high_score) {
   clear();
 
   aa_char_t aa_title = AA_TITLE;
