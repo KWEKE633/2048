@@ -52,28 +52,113 @@ int draw_menu(int high_score __attribute__((__unused__))) {
   }
 }
 
+static int extract_digits(int val, int digits[]) {
+  if (val == 0) {
+    digits[0] = 0;
+    return 1;
+  }
+
+  int num_digits = 0;
+  int temp = val;
+
+  while (temp > 0) {
+    num_digits++;
+    temp /= 10;
+  }
+  temp = val;
+  for (int i = num_digits - 1; i >= 0; i--) {
+    digits[i] = temp % 10;
+    temp /= 10;
+  }
+  return num_digits;
+}
+
+static int calculate_aa_width(const int digits[], int num_digits,
+                              const aa_char_t aa_digits[]) {
+  int total_width = 0;
+  for (int i = 0; i < num_digits; i++) {
+    total_width += aa_digits[digits[i]].width;
+  }
+  if (num_digits > 1) {
+    total_width += (num_digits - 1);
+  }
+
+  return total_width;
+}
+
+static void render_aa_value(int val, int start_row, int start_col) {
+  aa_char_t aa_digits[] = {AA_ZERO, AA_ONE, AA_TWO,   AA_THREE, AA_FOUR,
+                           AA_FIVE, AA_SIX, AA_SEVEN, AA_EIGHT, AA_NINE};
+
+  int digits[5] = {0};
+  int num_digits = extract_digits(val, digits);
+
+  for (int line = 0; line < 7; line++) {
+    int col_offset = 0;
+
+    for (int d = 0; d < num_digits; d++) {
+      int digit = digits[d];
+      aa_char_t *aa = &aa_digits[digit];
+
+      mvprintw(start_row + line, start_col + col_offset, "%s", aa->lines[line]);
+      col_offset += aa->width;
+
+      if (d < num_digits - 1) {
+        col_offset += 1;
+      }
+    }
+  }
+}
+
 void draw_board(Game *g) {
   aa_char_t aa_digits[] = {AA_ZERO, AA_ONE, AA_TWO,   AA_THREE, AA_FOUR,
                            AA_FIVE, AA_SIX, AA_SEVEN, AA_EIGHT, AA_NINE};
-  (void) aa_digits;
+
   clear();
   mvprintw(0, (COLS - 30) / 2, "2048 (arrows to move, q exit)");
   mvprintw(1, (COLS - 14) / 2, "Score: %06d", g->score);
+
+  int available_width_per_tile = COLS / g->N;
+  int available_height_per_tile = (LINES - 2) / g->N;
 
   for (int i = 0; i < g->N; i++) {
     for (int j = 0; j < g->N; j++) {
       int val = g->board[i][j];
       int cp = color_for_value(val);
 
-      if (val == 0) {
-        mvprintw(3 + i * 2, j * 6, "  .  ");
+      // Extract digits and calculate required ASCII art width
+      int digits[5] = {0};
+      int num_digits = extract_digits(val, digits);
+      int aa_width = calculate_aa_width(digits, num_digits, aa_digits);
+      int aa_height = 7;
+
+      if (cp)
+        attron(COLOR_PAIR(cp) | A_BOLD);
+
+      int tile_start_row = 2 + i * available_height_per_tile;
+      int tile_start_col = j * available_width_per_tile;
+
+      if (aa_width <= available_width_per_tile &&
+          aa_height <= available_height_per_tile) {
+
+        int padding_top = (available_height_per_tile - aa_height) / 2;
+        int padding_left = (available_width_per_tile - aa_width) / 2;
+
+        int art_start_row = tile_start_row + padding_top;
+        int art_start_col = tile_start_col + padding_left;
+        if (val != 0)
+          render_aa_value(val, art_start_row, art_start_col);
       } else {
-        if (cp)
-          attron(COLOR_PAIR(cp) | A_BOLD);
-        mvprintw(3 + i * 2, j * 6, "%4d ", val);
-        if (cp)
-          attroff(COLOR_PAIR(cp) | A_BOLD);
+        int padding_top = (available_height_per_tile - 1) / 2;
+        int padding_left = (available_width_per_tile - num_digits - 1) / 2;
+
+        int art_start_row = tile_start_row + padding_top;
+        int art_start_col = tile_start_col + padding_left;
+        if (val != 0)
+          mvprintw(art_start_row, art_start_col, "%d", val);
       }
+      if (cp)
+        attroff(COLOR_PAIR(cp) | A_BOLD);
     }
   }
   refresh();
