@@ -40,7 +40,6 @@ int count_2048(Game *g) {
   return cnt;
 }
 
-
 int is_full(Game *g) {
   for (int i = 0; i < g->N; i++)
     for (int j = 0; j < g->N; j++)
@@ -93,7 +92,8 @@ int mov(int dir, Game *g, int ex) {
             k--;
             moved = 1;
           }
-          if (k > 0 && g->board[k - 1][j] == g->board[k][j] && !(ex && g->board[k][j] == WIN_VALUE)) {
+          if (k > 0 && g->board[k - 1][j] == g->board[k][j] &&
+              !(ex && g->board[k][j] == WIN_VALUE)) {
             g->board[k - 1][j] *= 2;
             g->score += g->board[k - 1][j];
             g->board[k][j] = 0;
@@ -113,7 +113,8 @@ int mov(int dir, Game *g, int ex) {
             k++;
             moved = 1;
           }
-          if (k < N - 1 && g->board[k + 1][j] == g->board[k][j] && !(ex && g->board[k][j] == WIN_VALUE)) {
+          if (k < N - 1 && g->board[k + 1][j] == g->board[k][j] &&
+              !(ex && g->board[k][j] == WIN_VALUE)) {
             g->board[k + 1][j] *= 2;
             g->score += g->board[k + 1][j];
             g->board[k][j] = 0;
@@ -133,7 +134,8 @@ int mov(int dir, Game *g, int ex) {
             k--;
             moved = 1;
           }
-          if (k > 0 && g->board[i][k - 1] == g->board[i][k] && !(ex && g->board[i][k] == WIN_VALUE)) {
+          if (k > 0 && g->board[i][k - 1] == g->board[i][k] &&
+              !(ex && g->board[i][k] == WIN_VALUE)) {
             g->board[i][k - 1] *= 2;
             g->score += g->board[i][k - 1];
             g->board[i][k] = 0;
@@ -153,7 +155,8 @@ int mov(int dir, Game *g, int ex) {
             k++;
             moved = 1;
           }
-          if (k < N - 1 && g->board[i][k + 1] == g->board[i][k] && !(ex && g->board[i][k] == WIN_VALUE)) {
+          if (k < N - 1 && g->board[i][k + 1] == g->board[i][k] &&
+              !(ex && g->board[i][k] == WIN_VALUE)) {
             g->board[i][k + 1] *= 2;
             g->score += g->board[i][k + 1];
             g->board[i][k] = 0;
@@ -186,31 +189,30 @@ int mov(int dir, Game *g, int ex) {
 
 int main(void) {
   int ex_stage;
+  signal(SIGWINCH, handle_winch);
+  signal(SIGINT, handle_sigint);
+
+  srand(time(NULL));
+
+  initscr();
+  cbreak();
+  noecho();
+  keypad(stdscr, TRUE);
+  timeout(100);
+  curs_set(0);
+
+  init_colors();
 
   while (1) {
     ex_stage = 0;
     Game g = {.board = {}, .N = 0, .score = 0, .best = load_best_score()};
-
-    signal(SIGWINCH, handle_winch);
-    signal(SIGINT, handle_sigint);
-
-    srand(time(NULL));
-
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-    timeout(100);
-    curs_set(0);
-
-    init_colors();
 
     g.N = draw_menu(g.best);
     if (g.N == -1) {
       endwin();
       if (g_int) {
         ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-        return 1;
+        return 130;
       }
       return 0;
     }
@@ -222,7 +224,7 @@ int main(void) {
       if (g_int) {
         endwin();
         ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-        return 1;
+        return 130;
       }
       if (g_resize_flag) {
         res = handle_resize();
@@ -255,6 +257,11 @@ int main(void) {
         refresh();
         int c;
         while (1) {
+          if (g_int) {
+            endwin();
+            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+            return 130;
+          }
           c = getch();
           if (c == 'y' || c == 'n')
             break;
@@ -275,24 +282,29 @@ int main(void) {
         draw_board(&g);
         timeout(-1);
         if (!ex_stage) {
-          mvprintw(row, 0, "GAME OVER! Press z key...");
+          mvprintw(row, 0, "GAME OVER! Press ESC key...");
         } else {
-          mvprintw(row, 0, "EXTRA OVER! Final Score: %d   Press z key...", g.score);
+          mvprintw(row, 0, "EXTRA OVER! Final Score: %d   Press ESC key...",
+                   g.score);
           mvprintw(row + 1, 0, "Collected 2048 tiles: %d", count_2048(&g));
         }
         refresh();
-        while (1){
+        while (1) {
+          if (g_int) {
+            endwin();
+            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+            return 130;
+          }
           int c = getch();
-          if (c == 'z')
+          if (c == 27)
             break;
         }
         break;
       }
-      
     }
     if (g.best < g.score) {
-      save_best_score(
-          g.score); // MEMO: Ctrl + C で終了した場合スコアは保存されない。
+      // MEMO: Ctrl + C で終了した場合スコアは保存されない。
+      save_best_score(g.score);
     }
   }
   endwin();
