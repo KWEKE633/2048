@@ -199,7 +199,7 @@ int main(void) {
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
-    timeout(0);
+    timeout(100);
     curs_set(0);
 
     init_colors();

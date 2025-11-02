@@ -17,7 +17,7 @@ enum e_const {
 
 enum e_window_flag {
   WINDOW_MIN_WIDTH = 32,
-  WINDOW_MIN_HEIGHT = 13,
+  WINDOW_MIN_HEIGHT = 15,
 
   SCREEN_SIZE_OK = 0,
   SCREEN_SIZE_TOO_SMALL = 1
@@ -108,6 +108,15 @@ typedef struct {
                   "       +#+", \
                   "#+#    #+#", \
                   " ######## "}, 10, 7}
+
+
+#define AA_TITLE {{"       ::::::::   :::::::      :::      :::::::: ", \
+                   "     :+:    :+: :+:   :+:    :+:      :+:    :+: ", \
+                   "          +:+  +:+   +:+   +:+ +:+   +:+    +:+  ", \
+                   "       +#+    +#+   +:+  +#+  +:+    +#++:++#    ", \
+                   "    +#+      +#+   +#+ +#+#+#+#+#+ +#+    +#+    ", \
+                   "  #+#       #+#   #+#       #+#   #+#    #+#     ", \
+                   "##########  #######        ###    ########.fr    "}, 49 , 7}
 
 typedef struct s_game {
   int board[MAX][MAX];
