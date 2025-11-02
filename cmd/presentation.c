@@ -15,14 +15,14 @@ int handle_resize() {
     refresh();
     return SCREEN_SIZE_TOO_SMALL;
   }
-  timeout(0);
+  timeout(100);
   return SCREEN_SIZE_OK;
 }
 
 int draw_menu(int high_score __attribute__((__unused__))) {
   clear();
 
-  // aa_char_t aa_title = AA_TITLE;
+  aa_char_t aa_title = AA_TITLE;
   char *choices[] = {
       "1) 4 x 4",
       "2) 5 x 5",
@@ -43,15 +43,33 @@ int draw_menu(int high_score __attribute__((__unused__))) {
 
     if (res == SCREEN_SIZE_OK) {
       clear();
-      mvprintw(3, (COLS - 18) / 2, "=== 2048 MENU ===");
 
-      for (i = 0; i < n_choices; ++i) {
+      int title_start_row;
+      int header_end_line;
+      if (COLS >= aa_title.width && LINES >= aa_title.height + 15) {
+        int title_col = (COLS - aa_title.width) / 2;
+        title_start_row = 3;
+        for (int i = 0; i < aa_title.height; i++) {
+          mvprintw(title_start_row + i, title_col, "%s", aa_title.lines[i]);
+        }
+        header_end_line = title_start_row + aa_title.height + 2;
+        mvprintw(header_end_line, (COLS - 37) / 2,
+                 "- - - - - - - The game - - - - - - -");
+      } else {
+        mvprintw(3, (COLS - 5) / 2, "2048");
+        header_end_line = 5;
+        mvprintw(header_end_line, (COLS - 13) / 2, "- The game -");
+      }
+
+      for (i = 0; i < n_choices; i++) {
         if (highlight == i) { // 選択中の項目
           attron(A_REVERSE);  // ハイライト（反転表示）をON
-          mvprintw((LINES / 2) + i, (COLS) / 2 - 5, "%s", choices[i]);
+          header_end_line += 2;
+          mvprintw(header_end_line, (COLS) / 2 - 5, "%s", choices[i]);
           attroff(A_REVERSE); // ハイライトをOFF
         } else {
-          mvprintw((LINES / 2) + i, (COLS) / 2 - 5, "%s", choices[i]);
+          header_end_line += 2;
+          mvprintw(header_end_line, (COLS) / 2 - 5, "%s", choices[i]);
         }
       }
 
