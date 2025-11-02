@@ -185,9 +185,10 @@ int mov(int dir, Game *g, int ex) {
 }
 
 int main(void) {
-  int ex_stage = 0;
+  int ex_stage;
 
   while (1) {
+    ex_stage = 0;
     Game g = {.board = {}, .N = 0, .score = 0, .best = load_best_score()};
 
     signal(SIGWINCH, handle_winch);
