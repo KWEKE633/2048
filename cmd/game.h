@@ -23,6 +23,15 @@ enum e_window_flag {
   SCREEN_SIZE_TOO_SMALL = 1
 };
 
+#define MAX_RAIN 100
+
+typedef struct {
+    int x, y;
+    char ch;
+    int color;
+    int speed;
+} t_raindrop;
+
 typedef struct {
   char *lines[7];
   int width;

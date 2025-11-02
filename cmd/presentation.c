@@ -28,6 +28,15 @@ int draw_menu(int high_score) {
       "2) 5 x 5",
       "EXIT",
   };
+  t_raindrop rain[MAX_RAIN];
+  for (int i = 0; i < MAX_RAIN; i++) {
+    rain[i].x = rand() % COLS;
+    rain[i].y = rand() % LINES;
+    rain[i].ch = rand() % 94 + 33;
+    rain[i].color = rand() % 7 + 1;
+    rain[i].speed = rand() % 5 + 1;
+  }
+
   int n_choices = sizeof(choices) / sizeof(char *);
   int highlight = 0;
   int i;
@@ -43,6 +52,18 @@ int draw_menu(int high_score) {
 
     if (res == SCREEN_SIZE_OK) {
       clear();
+
+      for (int i = 0; i < MAX_RAIN; i++) {
+        attron(COLOR_PAIR(rain[i].color));
+        mvaddch(rain[i].y, rain[i].x, ' ');
+        rain[i].y += rain[i].speed;
+        if (rain[i].y >= LINES) {
+          rain[i].y = 0;
+          rain[i].x = rand() % COLS;
+        }
+        mvaddch(rain[i].y, rain[i].x, rain[i].ch);
+        attroff(COLOR_PAIR(rain[i].color));
+      }
 
       int title_start_row;
       int header_end_line;
