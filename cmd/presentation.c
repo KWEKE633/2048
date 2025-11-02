@@ -138,14 +138,14 @@ void draw_board(Game *g) {
       int tile_start_col = j * available_width_per_tile;
 
       if (aa_width <= available_width_per_tile &&
-          aa_height <= available_height_per_tile) {
+          aa_height <= available_height_per_tile && num_digits <= 5) {
 
         int padding_top = (available_height_per_tile - aa_height) / 2;
         int padding_left = (available_width_per_tile - aa_width) / 2;
 
         int art_start_row = tile_start_row + padding_top;
         int art_start_col = tile_start_col + padding_left;
-        if (val != 0 || digits <= 5)
+        if (val != 0)
           render_aa_value(val, art_start_row, art_start_col);
       } else {
         int padding_top = (available_height_per_tile - 1) / 2;
