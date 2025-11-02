@@ -72,7 +72,9 @@ int draw_menu(int high_score __attribute__((__unused__))) {
           mvprintw(header_end_line, (COLS) / 2 - 5, "%s", choices[i]);
         }
       }
-
+      header_end_line += 2;
+      mvprintw((LINES - header_end_line) / 2 + header_end_line, (COLS - 17) / 2,
+               "Best Score: %5d", high_score);
       refresh();
     }
 
