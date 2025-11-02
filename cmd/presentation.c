@@ -55,10 +55,10 @@ int draw_menu(int high_score __attribute__((__unused__))) {
 void draw_board(Game *g) {
   aa_char_t aa_digits[] = {AA_ZERO, AA_ONE, AA_TWO,   AA_THREE, AA_FOUR,
                            AA_FIVE, AA_SIX, AA_SEVEN, AA_EIGHT, AA_NINE};
-
+  (void) aa_digits;
   clear();
-  mvprintw(0, 0, "2048 (arrows to move, q exit)");
-  mvprintw(1, 0, "Score: %d", g->score);
+  mvprintw(0, (COLS - 30) / 2, "2048 (arrows to move, q exit)");
+  mvprintw(1, (COLS - 14) / 2, "Score: %06d", g->score);
 
   for (int i = 0; i < g->N; i++) {
     for (int j = 0; j < g->N; j++) {
