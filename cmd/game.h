@@ -11,30 +11,113 @@
 extern volatile sig_atomic_t g_resize_flag;
 extern volatile sig_atomic_t g_int;
 
-enum e_const
-{
-    WIN_VALUE = 2048,
+enum e_const {
+  WIN_VALUE = 2048,
 };
 
-enum e_window_flag
-{
-    WINDOW_MIN_WIDTH = 32,
-    WINDOW_MIN_HEIGHT = 13,
+enum e_window_flag {
+  WINDOW_MIN_WIDTH = 32,
+  WINDOW_MIN_HEIGHT = 13,
 
-    SCREEN_SIZE_OK = 0,
-    SCREEN_SIZE_TOO_SMALL = 1
+  SCREEN_SIZE_OK = 0,
+  SCREEN_SIZE_TOO_SMALL = 1
 };
 
-typedef struct s_game
-{
-    int board[MAX][MAX];
-    int N;
-    int score;
-    int best;
-    // int cell_w;
-    // int cell_h;
-    // int start_row;
-    // int start_col;
+typedef struct {
+  char *lines[7];
+  int width;
+  int height;
+} aa_char_t;
+
+#define AA_ZERO {{" ::::::: ", \
+                  ":+:   :+:", \
+                  "+:+   +:+", \
+                  "+#+   +:+", \
+                  "+#+   +#+", \
+                  "#+#   #+#", \
+                  " ####### "}, 9, 7}
+
+#define AA_ONE {{"  :::  ", \
+                 ":+:+:  ", \
+                 "  +:+  ", \
+                 "  +#+  ", \
+                 "  +#+  ", \
+                 "  #+#  ", \
+                 "#######"}, 7, 7}
+
+#define AA_TWO {{" :::::::: ", \
+                 ":+:    :+:", \
+                 "      +:+ ", \
+                 "    +#+   ", \
+                 "  +#+     ", \
+                 " #+#      ", \
+                 "##########"}, 10, 7}
+
+#define AA_THREE {{" :::::::: ", \
+                   ":+:    :+:", \
+                   "       +:+", \
+                   "    +#++: ", \
+                   "       +#+", \
+                   "#+#    #+#", \
+                   " ######## "}, 10, 7}
+
+#define AA_FOUR {{"    :::    ", \
+                  "   :+:     ", \
+                  "  +:+ +:+  ", \
+                  " +#+  +:+  ", \
+                  "+#+#+#+#+#+", \
+                  "      #+#  ", \
+                  "      ###  "}, 11, 7}
+
+#define AA_FIVE {{"::::::::::", \
+                  ":+:    :+:", \
+                  "+:+       ", \
+                  "+#++:++#+ ", \
+                  "       +#+", \
+                  "#+#    #+#", \
+                  " ######## "}, 10, 7}
+
+#define AA_SIX {{" :::::::: ", \
+                 ":+:    :+:", \
+                 "+:+       ", \
+                 "+#++:++#+ ", \
+                 "+#+    +#+", \
+                 "#+#    #+#", \
+                 " ######## "}, 10, 7}
+
+#define AA_SEVEN {{":::::::::::", \
+                   ":+:     :+:", \
+                   "       +:+ ", \
+                   "      +#+  ", \
+                   "     +#+   ", \
+                   "    #+#    ", \
+                   "    ###    "}, 11, 7}
+
+#define AA_EIGHT {{" :::::::: ", \
+                   ":+:    :+:", \
+                   "+:+    +:+", \
+                   " +#++:++# ", \
+                   "+#+    +#+", \
+                   "#+#    #+#", \
+                   " ######## "}, 10, 7}
+
+#define AA_NINE {{" :::::::: ", \
+                  ":+:    :+:", \
+                  "+:+    +:+", \
+                  " +#++:++#+", \
+                  "       +#+", \
+                  "#+#    #+#", \
+                  " ######## "}, 10, 7}
+
+typedef struct s_game {
+  int board[MAX][MAX];
+  int N;
+  int score;
+  int best;
+  // int cell_w;
+  // int cell_h;
+  // int start_row;
+  // int start_col;
 } Game;
 
 // presentation.c
@@ -48,4 +131,4 @@ void save_best_score(int best);
 void init_colors(void);
 int color_for_value(int v);
 
-#endif
+#endif /* GAME_H */
