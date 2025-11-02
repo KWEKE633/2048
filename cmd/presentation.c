@@ -15,12 +15,22 @@ int handle_resize() {
     refresh();
     return SCREEN_SIZE_TOO_SMALL;
   }
-  timeout(0);
+  timeout(100);
   return SCREEN_SIZE_OK;
 }
 
-int draw_menu(int high_score __attribute__((__unused__))) {
+int draw_menu(int high_score) {
   clear();
+
+  aa_char_t aa_title = AA_TITLE;
+  char *choices[] = {
+      "1) 4 x 4",
+      "2) 5 x 5",
+      "EXIT",
+  };
+  int n_choices = sizeof(choices) / sizeof(char *);
+  int highlight = 0;
+  int i;
 
   int init = 1;
   int res = SCREEN_SIZE_OK;
@@ -29,26 +39,80 @@ int draw_menu(int high_score __attribute__((__unused__))) {
       res = handle_resize();
       init = 0;
       g_resize_flag = 0;
-      if (res == SCREEN_SIZE_OK) {
-        mvprintw(3, 2, "=== 2048 MENU ===");
-        mvprintw(5, 4, "1) 4x4");
-        mvprintw(6, 4, "2) 5x5");
-        mvprintw(8, 4, "ESC to quit");
-        refresh();
-      }
     }
+
+    if (res == SCREEN_SIZE_OK) {
+      clear();
+
+      int title_start_row;
+      int header_end_line;
+      if (COLS >= aa_title.width && LINES >= aa_title.height + 15) {
+        int title_col = (COLS - aa_title.width) / 2;
+        title_start_row = 3;
+        for (int i = 0; i < aa_title.height; i++) {
+          mvprintw(title_start_row + i, title_col, "%s", aa_title.lines[i]);
+        }
+        header_end_line = title_start_row + aa_title.height + 2;
+        mvprintw(header_end_line, (COLS - 37) / 2,
+                 "- - - - - - - The game - - - - - - -");
+      } else {
+        mvprintw(3, (COLS - 5) / 2, "2048");
+        header_end_line = 5;
+        mvprintw(header_end_line, (COLS - 13) / 2, "- The game -");
+      }
+
+      for (i = 0; i < n_choices; i++) {
+        if (highlight == i) { // 選択中の項目
+          attron(A_REVERSE);  // ハイライト（反転表示）をON
+          header_end_line += 2;
+          mvprintw(header_end_line, (COLS) / 2 - 5, "%s", choices[i]);
+          attroff(A_REVERSE); // ハイライトをOFF
+        } else {
+          header_end_line += 2;
+          mvprintw(header_end_line, (COLS) / 2 - 5, "%s", choices[i]);
+        }
+      }
+      header_end_line += 2;
+      mvprintw((LINES - header_end_line) / 2 + header_end_line, (COLS - 17) / 2,
+               "Best Score: %5d", high_score);
+      refresh();
+    }
+
     if (g_int)
       return -1;
+
     int ch = getch();
     if (res == SCREEN_SIZE_TOO_SMALL) {
       continue;
     }
-    if (ch == '1')
+    switch (ch) {
+    case KEY_UP:
+      if (highlight == 0)
+        highlight = n_choices - 1;
+      else
+        --highlight;
+      break;
+    case KEY_DOWN:
+      if (highlight == n_choices - 1)
+        highlight = 0;
+      else
+        ++highlight;
+      break;
+    case '1':
       return 4;
-    if (ch == '2')
+    case '2':
       return 5;
-    if (ch == 27)
+    case 10: // Enter
+      if (highlight == 0)
+        return 4;
+      else if (highlight == 1)
+        return 5;
+      else if (highlight == 2)
+        return -1;
+      break;
+    case 27: // Escape
       return -1;
+    }
   }
 }
 
