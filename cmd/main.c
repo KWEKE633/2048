@@ -187,6 +187,11 @@ int mov(int dir, Game *g, int ex) {
 int main(void) {
   int ex_stage;
 
+  if (WIN_VALUE <= 0 || WIN_VALUE >= 2147483647 || (WIN_VALUE & (WIN_VALUE - 1)) != 0)
+  {
+    ft_putstr_fd("Invalid WIN_VALUE...\n", 2);
+    return 1;
+  }
   while (1) {
     ex_stage = 0;
     Game g = {.board = {}, .N = 0, .score = 0, .best = load_best_score()};
