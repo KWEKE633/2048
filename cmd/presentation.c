@@ -266,7 +266,7 @@ int draw_win_modal(int win_value) {
       int center_row = LINES / 2;
       int center_col = COLS / 2;
       int box_width = 18 + 10; // 表示タイトルが18文字想定
-      int box_height = 7;
+      int box_height = 8;
       int box_start_row = center_row - box_height / 2;
       int box_start_col = center_col - box_width / 2;
 
@@ -286,8 +286,9 @@ int draw_win_modal(int win_value) {
       }
 
       mvprintw(box_start_row + 2, center_col - 18 / 2, "You reached %5d", win_value);
+      mvprintw(box_start_row + 3, center_col - 10 / 2, "Continue?");
       for (int i = 0; i < n_choices; i++) {
-        int choice_row = box_start_row + 4 + i;
+        int choice_row = box_start_row + 5 + i;
 
         if (highlight == i) {
           attron(A_REVERSE);
@@ -322,6 +323,80 @@ int draw_win_modal(int win_value) {
       return 0; // No
     case 10: // Enter
       return (highlight == 0) ? 1 : 0;
+    }
+  }
+}
+
+int draw_game_over_modal(int ex_stage, int score, int win_value,
+                         int count_tiles) {
+  int res = SCREEN_SIZE_OK;
+  char *choice = "OK";
+
+  while (1) {
+    if (g_resize_flag) {
+      res = handle_resize();
+      g_resize_flag = 0;
+    }
+    if (res == SCREEN_SIZE_OK) {
+      clear();
+
+      int center_row = LINES / 2;
+      int center_col = COLS / 2;
+
+      int msg1_len = 13 + 5;
+      int msg2_len = 0;
+      int has_msg2 = ex_stage;
+
+      if (ex_stage) {
+        msg2_len = 10 + 5 + 8 + 5; // "Collected " + 5桁 + " tiles: " + 5桁 = 28
+      }
+
+      int max_msg_len = msg1_len > msg2_len ? msg1_len : msg2_len;
+
+      int box_width = max_msg_len + 10;
+      int box_height = has_msg2 ? 9 : 7;
+      int box_start_row = center_row - box_height / 2;
+      int box_start_col = center_col - box_width / 2;
+
+      for (int i = 0; i < box_height; i++) {
+        for (int j = 0; j < box_width; j++) {
+          int row = box_start_row + i;
+          int col = box_start_col + j;
+          if (i == 0 || i == box_height - 1) {
+            mvprintw(row, col, "-");
+          } else if (j == 0 || j == box_width - 1) {
+            mvprintw(row, col, "|");
+          } else {
+            mvprintw(row, col, " ");
+          }
+        }
+      }
+
+      mvprintw(box_start_row + 2, center_col - msg1_len / 2,
+               "Final Score: %5d", score);
+      if (has_msg2) {
+        mvprintw(box_start_row + 3, center_col - msg2_len / 2,
+                 "Collected %5d tiles: %5d", win_value, count_tiles);
+      }
+
+      int choice_row = box_start_row + (has_msg2 ? 6 : 5);
+
+      attron(A_REVERSE);
+      mvprintw(choice_row, center_col - 2 / 2 - 2, "  %s  ", choice);
+      attroff(A_REVERSE);
+
+      refresh();
+    }
+
+    if (g_int)
+      return -1;
+
+    int ch = getch();
+    if (res == SCREEN_SIZE_TOO_SMALL) {
+      continue;
+    }
+    if (ch == 10 || ch == 27 || ch == ' ') {
+      return 0;
     }
   }
 }

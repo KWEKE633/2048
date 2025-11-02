@@ -268,27 +268,11 @@ int main(void) {
       }
 
       if (!can_move(&g, ex_stage)) {
-        int row = 3 + g.N * 2;
-
-        draw_board(&g);
-        timeout(-1);
-        if (!ex_stage) {
-          mvprintw(row, 0, "GAME OVER! Press ESC key...");
-        } else {
-          mvprintw(row, 0, "EXTRA OVER! Final Score: %d   Press ESC key...",
-                   g.score);
-          mvprintw(row + 1, 0, "Collected %5d tiles: %d", WIN_VALUE , count_2048(&g));
-        }
-        refresh();
-        while (1) {
-          if (g_int) {
-            endwin();
-            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-            return 130;
-          }
-          int c = getch();
-          if (c == 27)
-            break;
+        int result = draw_game_over_modal(ex_stage, g.score, WIN_VALUE, count_2048(&g));
+        if (result == -1) {
+          endwin();
+          ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+          return 130;
         }
         break;
       }
