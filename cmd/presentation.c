@@ -200,7 +200,7 @@ void draw_board(Game *g) {
                            AA_FIVE, AA_SIX, AA_SEVEN, AA_EIGHT, AA_NINE};
 
   clear();
-  mvprintw(0, (COLS - 30) / 2, "2048 (arrows to move, q exit)");
+  mvprintw(0, (COLS - 32) / 2, "2048 (arrows to move, ESC exit)");
   mvprintw(1, (COLS - 14) / 2, "Score: %06d", g->score);
 
   int available_width_per_tile = COLS / g->N;

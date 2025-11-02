@@ -235,7 +235,7 @@ int main(void) {
       if (res == SCREEN_SIZE_TOO_SMALL) {
         continue;
       }
-      if (ch == 'q')
+      if (ch == 27)
         break;
       int moved = 0;
       if (ch == KEY_UP)
