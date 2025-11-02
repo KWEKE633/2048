@@ -31,6 +31,16 @@ void init_board(Game *g) {
   }
 }
 
+int count_2048(Game *g) {
+  int cnt = 0;
+  for (int i = 0; i < g->N; i++)
+    for (int j = 0; j < g->N; j++)
+      if (g->board[i][j] == WIN_VALUE)
+        cnt++;
+  return cnt;
+}
+
+
 int is_full(Game *g) {
   for (int i = 0; i < g->N; i++)
     for (int j = 0; j < g->N; j++)
@@ -47,21 +57,25 @@ int is_won(Game *g) {
   return 0;
 }
 
-int can_move(Game *g) {
+int can_move(Game *g, int ex) {
   for (int i = 0; i < g->N; i++) {
     for (int j = 0; j < g->N; j++) {
       if (g->board[i][j] == 0)
         return 1;
-      if (j < g->N - 1 && g->board[i][j] == g->board[i][j + 1])
-        return 1;
-      if (i < g->N - 1 && g->board[i][j] == g->board[i + 1][j])
-        return 1;
+      if (j < g->N - 1 && g->board[i][j] == g->board[i][j + 1]) {
+        if (!(ex && g->board[i][j] == WIN_VALUE))
+          return 1;
+      }
+      if (i < g->N - 1 && g->board[i][j] == g->board[i + 1][j]) {
+        if (!(ex && g->board[i][j] == WIN_VALUE))
+          return 1;
+      }
     }
   }
   return 0;
 }
 
-int mov(int dir, Game *g) {
+int mov(int dir, Game *g, int ex) {
   int moved = 0;
   int prev[MAX][MAX];
   int N = g->N;
@@ -79,7 +93,7 @@ int mov(int dir, Game *g) {
             k--;
             moved = 1;
           }
-          if (k > 0 && g->board[k - 1][j] == g->board[k][j]) {
+          if (k > 0 && g->board[k - 1][j] == g->board[k][j] && !(ex && g->board[k][j] == WIN_VALUE)) {
             g->board[k - 1][j] *= 2;
             g->score += g->board[k - 1][j];
             g->board[k][j] = 0;
@@ -99,7 +113,7 @@ int mov(int dir, Game *g) {
             k++;
             moved = 1;
           }
-          if (k < N - 1 && g->board[k + 1][j] == g->board[k][j]) {
+          if (k < N - 1 && g->board[k + 1][j] == g->board[k][j] && !(ex && g->board[k][j] == WIN_VALUE)) {
             g->board[k + 1][j] *= 2;
             g->score += g->board[k + 1][j];
             g->board[k][j] = 0;
@@ -119,7 +133,7 @@ int mov(int dir, Game *g) {
             k--;
             moved = 1;
           }
-          if (k > 0 && g->board[i][k - 1] == g->board[i][k]) {
+          if (k > 0 && g->board[i][k - 1] == g->board[i][k] && !(ex && g->board[i][k] == WIN_VALUE)) {
             g->board[i][k - 1] *= 2;
             g->score += g->board[i][k - 1];
             g->board[i][k] = 0;
@@ -139,7 +153,7 @@ int mov(int dir, Game *g) {
             k++;
             moved = 1;
           }
-          if (k < N - 1 && g->board[i][k + 1] == g->board[i][k]) {
+          if (k < N - 1 && g->board[i][k + 1] == g->board[i][k] && !(ex && g->board[i][k] == WIN_VALUE)) {
             g->board[i][k + 1] *= 2;
             g->score += g->board[i][k + 1];
             g->board[i][k] = 0;
@@ -171,85 +185,115 @@ int mov(int dir, Game *g) {
 }
 
 int main(void) {
-  Game g = {.board = {}, .N = 0, .score = 0, .best = load_best_score()};
+  int ex_stage;
 
-  signal(SIGWINCH, handle_winch);
-  signal(SIGINT, handle_sigint);
-
-  srand(time(NULL));
-
-  initscr();
-  cbreak();
-  noecho();
-  keypad(stdscr, TRUE);
-  timeout(100);
-  curs_set(0);
-
-  init_colors();
-
-  g.N = draw_menu(g.best);
-  if (g.N == -1) {
-    endwin();
-    if (g_int) {
-      ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-      return 1;
-    }
-    return 0;
-  }
-  init_board(&g);
-  draw_board(&g);
-
-  int res = SCREEN_SIZE_OK;
   while (1) {
-    if (g_int) {
+    ex_stage = 0;
+    Game g = {.board = {}, .N = 0, .score = 0, .best = load_best_score()};
+
+    signal(SIGWINCH, handle_winch);
+    signal(SIGINT, handle_sigint);
+
+    srand(time(NULL));
+
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    timeout(100);
+    curs_set(0);
+
+    init_colors();
+
+    g.N = draw_menu(g.best);
+    if (g.N == -1) {
       endwin();
-      ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-      return 1;
-    }
-    if (g_resize_flag) {
-      res = handle_resize();
-      g_resize_flag = 0;
-      if (res == SCREEN_SIZE_OK) {
-        draw_board(&g);
+      if (g_int) {
+        ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+        return 1;
       }
+      return 0;
     }
-    int ch = getch();
-    if (res == SCREEN_SIZE_TOO_SMALL) {
-      continue;
-    }
-    if (ch == 'q')
-      break;
-    int moved = 0;
-    if (ch == KEY_UP)
-      moved = mov(0, &g);
-    if (ch == KEY_DOWN)
-      moved = mov(1, &g);
-    if (ch == KEY_LEFT)
-      moved = mov(2, &g);
-    if (ch == KEY_RIGHT)
-      moved = mov(3, &g);
+    init_board(&g);
+    draw_board(&g);
 
-    if (moved)
-      draw_board(&g);
-
-    if (is_won(&g)) {
-      mvprintw(3 + g.N * 2, 0, "You reached %d! Continue? (y/n)", WIN_VALUE);
-      refresh();
-      int c = getch();
-      if (c == 'n')
+    int res = SCREEN_SIZE_OK;
+    while (1) {
+      if (g_int) {
+        endwin();
+        ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+        return 1;
+      }
+      if (g_resize_flag) {
+        res = handle_resize();
+        g_resize_flag = 0;
+        if (res == SCREEN_SIZE_OK) {
+          draw_board(&g);
+        }
+      }
+      int ch = getch();
+      if (res == SCREEN_SIZE_TOO_SMALL) {
+        continue;
+      }
+      if (ch == 'q')
         break;
-    }
+      int moved = 0;
+      if (ch == KEY_UP)
+        moved = mov(0, &g, ex_stage);
+      if (ch == KEY_DOWN)
+        moved = mov(1, &g, ex_stage);
+      if (ch == KEY_LEFT)
+        moved = mov(2, &g, ex_stage);
+      if (ch == KEY_RIGHT)
+        moved = mov(3, &g, ex_stage);
 
-    if (!can_move(&g)) {
-      mvprintw(3 + g.N * 2, 0, "GAME OVER! Press any key...");
-      refresh();
-      getch();
-      break;
+      if (moved)
+        draw_board(&g);
+
+      if (!ex_stage && is_won(&g)) {
+        mvprintw(3 + g.N * 2, 0, "You reached %d! Continue? (y/n)", WIN_VALUE);
+        refresh();
+        int c;
+        while (1) {
+          c = getch();
+          if (c == 'y' || c == 'n')
+            break;
+        }
+        if (c == 'n')
+          break;
+        else if (c == 'y') {
+          ex_stage = 1;
+          move(3 + g.N * 2, 0);
+          clrtoeol();
+          draw_board(&g);
+        }
+      }
+
+      if (!can_move(&g, ex_stage)) {
+        int row = 3 + g.N * 2;
+
+        draw_board(&g);
+        timeout(-1);
+        if (!ex_stage) {
+          mvprintw(row, 0, "GAME OVER! Press z key...");
+        } else {
+          mvprintw(row, 0, "EXTRA OVER! Final Score: %d   Press z key...", g.score);
+          mvprintw(row + 1, 0, "Collected 2048 tiles: %d", count_2048(&g));
+        }
+        refresh();
+        while (1){
+          int c = getch();
+          if (c == 'z')
+            break;
+        }
+        break;
+      }
+      
     }
-  }
-  if (g.best < g.score) {
-    save_best_score(
-        g.score); // MEMO: Ctrl + C で終了した場合スコアは保存されない。
+    if (g.best < g.score) {
+      save_best_score(
+          g.score); // MEMO: Ctrl + C で終了した場合スコアは保存されない。
+    }
   }
   endwin();
   return 0;

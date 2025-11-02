@@ -29,6 +29,6 @@ int color_for_value(int v)
 	if (v == 256) return 3;
 	if (v == 512) return 5;
     if (v == 1024) return 8;
-    if (v == 2048) return 9;
+    if (v >= 2048) return 9;
     return 0;
 }
