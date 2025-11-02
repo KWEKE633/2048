@@ -247,3 +247,36 @@ void draw_board(Game *g) {
   }
   refresh();
 }
+
+int draw_win_modal(int win_value) {
+  int res = SCREEN_SIZE_OK;
+
+  while (1) {
+    if (g_resize_flag) {
+      res = handle_resize();
+      g_resize_flag = 0;
+    }
+
+    if (res == SCREEN_SIZE_OK) {
+      int msg_row = LINES / 2 - 1;
+
+      // 強調表示
+      attron(A_REVERSE | A_BOLD);
+      mvprintw(msg_row, (COLS - 17) / 2, "You reached %5d", win_value);
+      mvprintw(msg_row + 2, (COLS - 16) / 2, "Continue? (y/n)");
+      attroff(A_REVERSE | A_BOLD);
+      refresh();
+    }
+
+    if (g_int)
+      return -1;
+    int ch = getch();
+    if (res == SCREEN_SIZE_TOO_SMALL) {
+      continue;
+    }
+    if (ch == 'y' || ch == 'Y')
+      return 1;
+    else if (ch == 'n' || ch == 'N')
+      return 0;
+  }
+}

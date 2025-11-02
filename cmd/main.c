@@ -253,25 +253,16 @@ int main(void) {
         draw_board(&g);
 
       if (!ex_stage && is_won(&g)) {
-        mvprintw(3 + g.N * 2, 0, "You reached %d! Continue? (y/n)", WIN_VALUE);
-        refresh();
-        int c;
-        while (1) {
-          if (g_int) {
-            endwin();
-            ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
-            return 130;
-          }
-          c = getch();
-          if (c == 'y' || c == 'n')
-            break;
+        int result = draw_win_modal(WIN_VALUE);
+        if (result == -1) {
+          endwin();
+          ft_putstr_fd("\nInterrupted (Ctrl+C). Cleaning up ...\n", 2);
+          return 130;
         }
-        if (c == 'n')
+        else if (result == 0)
           break;
-        else if (c == 'y') {
+        else if (result == 1) {
           ex_stage = 1;
-          move(3 + g.N * 2, 0);
-          clrtoeol();
           draw_board(&g);
         }
       }

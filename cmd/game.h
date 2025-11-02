@@ -142,6 +142,7 @@ typedef struct s_game {
 int draw_menu(int high_score);
 int handle_resize();
 void draw_board(Game *g);
+int draw_win_modal(int win_value);
 
 int load_best_score(void);
 void save_best_score(int best);
