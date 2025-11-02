@@ -126,7 +126,6 @@ void draw_board(Game *g) {
       int val = g->board[i][j];
       int cp = color_for_value(val);
 
-      // Extract digits and calculate required ASCII art width
       int digits[5] = {0};
       int num_digits = extract_digits(val, digits);
       int aa_width = calculate_aa_width(digits, num_digits, aa_digits);
@@ -146,7 +145,7 @@ void draw_board(Game *g) {
 
         int art_start_row = tile_start_row + padding_top;
         int art_start_col = tile_start_col + padding_left;
-        if (val != 0)
+        if (val != 0 || digits <= 5)
           render_aa_value(val, art_start_row, art_start_col);
       } else {
         int padding_top = (available_height_per_tile - 1) / 2;
